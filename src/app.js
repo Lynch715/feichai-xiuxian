@@ -337,7 +337,13 @@ function renderActions() {
     button.type = "button";
     button.className = "action-button is-suggested";
     button.disabled = busy || adjudicating;
-    button.append(textElement("span", text, "action-label"), textElement("small", "模型建议 · 由系统裁决可行性"));
+    // .action-button 是 30px / 1fr / auto 三列网格，必须占满三列，
+    // 否则 label 会落进 30px 的序号列里被挤成一列竖排。
+    button.append(
+      textElement("span", "议", "action-index is-hint"),
+      textElement("span", text, "action-label"),
+      textElement("small", "模型建议"),
+    );
     button.addEventListener("click", () => performFreeAction(text));
     ui.actionList.append(button);
   }
@@ -913,6 +919,15 @@ ui.newGameButton.addEventListener("click", () => {
   state = null;
   showStartDialog();
 });
+
+// iOS Safari 10+ 会忽略 viewport 的 user-scalable=no，只能拦截手势事件。
+for (const type of ["gesturestart", "gesturechange", "gestureend"]) {
+  document.addEventListener(type, (event) => event.preventDefault(), { passive: false });
+}
+// 双指捏合在部分安卓浏览器走 touchmove。
+document.addEventListener("touchmove", (event) => {
+  if (event.touches.length > 1) event.preventDefault();
+}, { passive: false });
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("service-worker.js").catch(() => {});

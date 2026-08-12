@@ -12,6 +12,7 @@
   --gold: light-dark(#8f692e, #c6a366);
   --danger: light-dark(#9b2f2f, #eb7777);
   --shadow: light-dark(rgba(27, 19, 8, 0.22), rgba(0, 0, 0, 0.56));
+  --nav-h: 67px;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
   background: #12120f;
 }
@@ -21,6 +22,7 @@ html { min-width: 320px; min-height: 100%; background: #12120f; }
 body { min-height: 100%; margin: 0; color: var(--ink); background: #12120f; }
 button, input, select, textarea { font: inherit; }
 button { touch-action: manipulation; }
+html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
 [hidden] { display: none !important; }
 
 .app-shell {
@@ -59,7 +61,7 @@ button { touch-action: manipulation; }
 .icon-button, .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: var(--paper-2); cursor: pointer; }
 
 .view-stack { width: 100%; }
-.app-view { display: none; padding: 14px 14px 28px; }
+.app-view { display: none; padding: 14px 14px calc(28px + var(--nav-h) + env(safe-area-inset-bottom)); }
 .app-view.is-active { display: block; }
 .scene-card { position: relative; min-height: 330px; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px 18px 7px 7px; background: var(--paper-2); box-shadow: 0 16px 40px color-mix(in srgb, var(--shadow) 55%, transparent); }
 .scene-card.is-placeholder::before { position: absolute; inset: 0; display: grid; place-items: center; color: color-mix(in srgb, var(--ink) 22%, transparent); font-size: clamp(6rem, 32vw, 12rem); content: attr(data-initial); background: radial-gradient(circle, color-mix(in srgb, var(--paper-3) 68%, transparent), transparent 68%); }
@@ -239,27 +241,32 @@ button { touch-action: manipulation; }
 }
 
 .pulse-section {
-  margin-bottom: 18px;
-  padding: 14px 16px;
-  border: 1px solid rgba(214, 199, 160, 0.16);
-  border-radius: 14px;
-  background: rgba(38, 36, 29, 0.5);
+  margin-bottom: 16px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--paper-2) 67%, transparent);
 }
+.pulse-section .section-title { margin-bottom: 8px; }
+.pulse-list { display: grid; }
 .pulse-row {
   display: flex;
   gap: 10px;
-  padding: 7px 0;
-  border-bottom: 1px dashed rgba(214, 199, 160, 0.1);
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
 }
 .pulse-row:last-child { border-bottom: none; }
 .pulse-row time {
   flex: 0 0 auto;
-  font-size: 12px;
-  color: rgba(214, 199, 160, 0.55);
-  padding-top: 2px;
+  padding-top: 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
 }
-.pulse-row p { margin: 0; font-size: 14px; line-height: 1.65; }
-.action-button.is-suggested {
-  border-style: dashed;
-  border-color: rgba(214, 199, 160, 0.3);
+.pulse-row p { margin: 0; line-height: 1.6; }
+.action-button.is-suggested { border-style: dashed; }
+.action-index.is-hint {
+  border-color: color-mix(in srgb, var(--moss) 42%, var(--line));
+  color: var(--moss);
+  font-weight: 400;
+  background: color-mix(in srgb, var(--moss) 8%, transparent);
 }
