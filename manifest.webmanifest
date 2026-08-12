@@ -1,0 +1,11 @@
+{
+  "name": "废柴修仙模拟器",
+  "short_name": "废柴修仙",
+  "description": "规则托底、玩家自备AI叙事的开放式修仙文字RPG。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#171712",
+  "theme_color": "#171712",
+  "orientation": "portrait-primary"
+}

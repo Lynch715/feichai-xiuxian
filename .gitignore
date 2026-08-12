@@ -1,0 +1,9 @@
+# 手工备份目录：git 落地后由版本历史取代
+backups/
+
+# 其他项目的产物，与本仓库无关
+deepseek-api-key-flowchart/
+武侠江湖模拟器-*/
+
+node_modules/
+.DS_Store

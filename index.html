@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#171712" />
+    <meta name="description" content="由规则托底、玩家自备AI叙事的开放式修仙文字RPG。" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>废柴修仙模拟器</title>
+  </head>
+  <body>
+    <div id="app" class="app-shell" data-theme="ink">
+      <header class="topbar">
+        <button id="locationButton" class="topbar-location" type="button" aria-label="查看可前往地点">
+          <span id="timeLabel">第一日 · 清晨</span>
+          <strong id="locationLabel">山门试心阶</strong>
+        </button>
+        <div class="topbar-actions">
+          <span id="aiStatus" class="ai-status" aria-label="叙事模式">本地叙事</span>
+          <button id="settingsButton" class="icon-button" type="button" aria-label="打开设置">⚙</button>
+        </div>
+      </header>
+
+      <main class="view-stack">
+        <section id="storyView" class="app-view is-active" data-view="story" aria-label="剧情">
+          <figure class="scene-card">
+            <img id="scenePortrait" class="scene-portrait" src="assets/portraits/shen-yan.jpg" alt="当前角色立绘" />
+            <div class="scene-wash" aria-hidden="true"></div>
+            <figcaption class="speaker-strip">
+              <span><strong id="speakerName">沈砚</strong><small id="speakerRole">青崖宗外门弟子</small></span>
+              <em id="speakerMood">沉静</em>
+            </figcaption>
+          </figure>
+
+          <section class="narrative-panel" aria-live="polite" aria-busy="false">
+            <div id="narrativeText" class="narrative-text"></div>
+            <div id="effectList" class="effect-list" aria-label="本回合变化"></div>
+            <div id="llmWarning" class="inline-warning" hidden></div>
+          </section>
+
+          <section id="battlePanel" class="battle-panel" hidden aria-label="战斗状态">
+            <div><span id="battlePlayerName">沈砚</span><div class="meter"><i id="playerBattleBar"></i></div><strong id="playerBattleValue"></strong></div>
+            <div><span>韩照</span><div class="meter enemy"><i id="enemyBattleBar"></i></div><strong id="enemyBattleValue"></strong></div>
+          </section>
+
+          <section id="endingPanel" class="ending-panel" hidden></section>
+
+          <section class="choices-panel" aria-label="本回合行动">
+            <div class="section-kicker"><span>你准备怎么做？<em class="shortcut-tip">按 1–4 选择</em></span><small id="turnLabel">第 0 回合</small></div>
+            <div id="actionList" class="action-list"></div>
+          </section>
+        </section>
+
+        <section id="characterView" class="app-view" data-view="character" aria-label="人物">
+          <header class="section-header">
+            <img id="playerPortrait" src="assets/portraits/shen-yan.jpg" alt="主角立绘" />
+            <div><span>主角</span><h1 id="playerName">沈砚</h1><p id="playerIdentity">人族 · 青崖宗外门弟子</p></div>
+          </header>
+          <div id="characterStats" class="stat-groups"></div>
+          <section class="knowledge-box">
+            <div class="section-title"><h2>天赋异常</h2><span id="truthState">？？？</span></div>
+            <p id="suspicionText">目前只知道，你的修炼表现远低于正常同辈。</p>
+          </section>
+        </section>
+
+        <section id="relationsView" class="app-view" data-view="relations" aria-label="关系">
+          <div class="page-title"><div><span>人物关系</span><h1>关系</h1></div><small id="knownNpcCount"></small></div>
+          <div id="relationList" class="relation-list"></div>
+        </section>
+
+        <section id="inventoryView" class="app-view" data-view="inventory" aria-label="行囊">
+          <div class="page-title"><div><span>物资与财产</span><h1>行囊</h1></div><small id="stoneCount"></small></div>
+          <div id="inventoryList" class="inventory-list"></div>
+          <section class="clue-section">
+            <div class="section-title"><h2>已知线索</h2><span id="clueCount"></span></div>
+            <div id="clueList" class="clue-list"></div>
+          </section>
+        </section>
+
+        <section id="logView" class="app-view" data-view="log" aria-label="记录">
+          <div class="page-title"><div><span>重要选择与发现</span><h1>事件簿</h1></div><small id="eventCount"></small></div>
+          <section id="pulseSection" class="pulse-section" hidden>
+            <div class="section-title"><h2>江湖近况</h2><span>你不在场时发生的事</span></div>
+            <div id="pulseList" class="pulse-list"></div>
+          </section>
+          <ol id="eventLog" class="timeline"></ol>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="主要功能">
+        <button class="is-active" type="button" data-view-target="story"><span>卷</span><small>剧情</small></button>
+        <button type="button" data-view-target="character"><span>人</span><small>人物</small></button>
+        <button type="button" data-view-target="relations"><span>缘</span><small>关系</small></button>
+        <button type="button" data-view-target="inventory"><span>囊</span><small>行囊</small></button>
+        <button type="button" data-view-target="log"><span>录</span><small>记录</small></button>
+      </nav>
+    </div>
+
+    <dialog id="newGameDialog" class="sheet-dialog" data-static>
+      <form id="newGameForm" method="dialog" class="dialog-panel">
+        <div class="brand-mark" aria-hidden="true">废</div>
+        <p class="eyebrow">青崖宗 · 十年收徒</p>
+        <h1>废柴修仙模拟器</h1>
+        <p class="dialog-lead">你的灵光只亮起微弱一线。是就此下山，还是留下来查清被“废柴”二字遮住的真相？</p>
+        <div class="form-grid two">
+          <label>姓名<input id="profileName" name="name" maxlength="8" value="沈砚" required /></label>
+          <label>性别<select id="profileGender" name="gender"><option>男</option><option>女</option><option>其他</option></select></label>
+        </div>
+        <label>主修方向<select id="profilePath" name="mainPath"><option>剑修</option><option>丹修</option><option>符修</option><option>体修</option><option>阵修</option></select></label>
+        <label>预制立绘<select id="profilePortrait" name="portrait"><option value="assets/portraits/shen-yan.jpg">青衫少年</option><option value="assets/portraits/player-female.jpg">墨青女修</option></select></label>
+        <div class="start-summary">
+          <span>可见天赋 <strong id="rollTalent">12</strong></span>
+          <span>性格 <strong id="rollTraits">隐忍、执拗</strong></span>
+          <button id="rerollButton" type="button">重掷一次</button>
+        </div>
+        <button class="primary-button" value="start" type="submit">踏上试心阶</button>
+        <button id="continueButton" class="text-button" type="button" hidden>继续上次存档</button>
+      </form>
+    </dialog>
+
+    <dialog id="settingsDialog" class="sheet-dialog">
+      <form id="settingsForm" method="dialog" class="dialog-panel">
+        <header class="dialog-title"><div><span>玩家自备 API</span><h2>叙事模型设置</h2></div><button class="close-button" value="close" aria-label="关闭">×</button></header>
+        <label class="switch-row"><span><strong>启用 AI 叙事</strong><small>关闭时使用内置剧情文本，游戏仍可完整运行。</small></span><input id="llmEnabled" type="checkbox" /></label>
+        <label>接口类型<select id="providerSelect"><option value="deepseek">DeepSeek</option><option value="custom">自定义 OpenAI-compatible</option></select></label>
+        <label>Base URL<input id="baseUrlInput" type="url" autocomplete="off" /></label>
+        <label id="deepseekModelField">DeepSeek 模型<select id="deepseekModelSelect"><option value="deepseek-v4-flash">DeepSeek V4 Flash（更快、更省）</option><option value="deepseek-v4-pro">DeepSeek V4 Pro（能力更强）</option></select></label>
+        <label id="customModelField" hidden>模型名称<input id="modelInput" autocomplete="off" /></label>
+        <label>API Key<input id="apiKeyInput" type="password" autocomplete="off" placeholder="仅保存在本机" /></label>
+        <label class="check-row"><input id="rememberKeyInput" type="checkbox" /><span>在本机长期记住密钥（不推荐在共用设备启用）</span></label>
+        <p class="privacy-note">密钥不会写入游戏存档或导出文件。纯静态网页能否直连接口取决于服务商的浏览器跨域策略。</p>
+        <div class="button-row">
+          <button id="testConnectionButton" class="secondary-button" type="button">测试连接</button>
+          <button class="primary-button" value="save" type="submit">保存设置</button>
+        </div>
+        <hr />
+        <div class="save-tools">
+          <button id="exportButton" type="button">导出存档</button>
+          <button id="importButton" type="button">导入存档</button>
+          <button id="newGameButton" class="danger-text" type="button">重新开始</button>
+          <input id="importFile" type="file" accept="application/json,.json" hidden />
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="freeActionDialog" class="sheet-dialog">
+      <form id="freeActionForm" method="dialog" class="dialog-panel">
+        <header class="dialog-title"><div><span>自由行动</span><h2>你想怎么做？</h2></div><button class="close-button" value="close" aria-label="关闭">×</button></header>
+        <textarea id="freeActionInput" rows="5" maxlength="160" placeholder="例如：先用树枝试探那缕灵气是否会追逐活物" required></textarea>
+        <p class="privacy-note">这段文字会先发送给你配置的模型做可行性裁决，再由程序校验数值边界后结算。未启用 AI 时不提供自由行动。</p>
+        <button class="primary-button" value="submit" type="submit">确认这个行动</button>
+      </form>
+    </dialog>
+
+    <dialog id="locationDialog" class="sheet-dialog">
+      <form method="dialog" class="dialog-panel compact">
+        <header class="dialog-title"><div><span>青崖宗外门</span><h2>前往地点</h2></div><button class="close-button" value="close" aria-label="关闭">×</button></header>
+        <div id="locationActions" class="location-actions"></div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
